@@ -1,3 +1,4 @@
+import math
 from typing import List, Sequence
 
 from grouping import BoundedPartition, BoundedGroup
@@ -5,18 +6,19 @@ from grouping import BoundedPartition, BoundedGroup
 
 class Etudiant(object):
 
-    def __init__(self, nom, prenom, avantage: float, leader=False, polarite: int = None):
+    def __init__(self, nom, prenom, avantage: float, leader=False, polarite: int = None, alea: float = 0):
         self.nom = nom
         self.prenom = prenom
         self.avantage = avantage
         self.leader = leader
         self.polarite = polarite
+        self.alea = alea
 
     def __repr__(self):
         return "%s %s %s" % (self.nom, self.leader, self.polarite)
 
     def __lt__(self, other):
-        return (self.nom, self.prenom) < (other.nom, other.prenom)
+        return self.nom <= other.nom
 
 
 def has_duplicate_numbers(li):
@@ -71,6 +73,24 @@ class Repartition(BoundedPartition):
             return False
         return True
 
+
     def optimalite(self):
         avantages = [g.avantage() for g in self.groups.values()]
         return max(avantages) - min(avantages)
+
+    @classmethod
+    def faire(cls, g: GroupeTP, nb: int = 3):
+        tailles = g.repartition(nb)
+        groupes = [GroupeProjet(name=n, room=capacite) for n, capacite in enumerate(tailles, start=1)]
+        rep = cls(*groupes)
+        score_optimal = math.inf
+        groupes_optimaux = None
+        for rep_complete in rep.possible_assignments(g.etudiants):
+            if not rep_complete.validite():
+                continue
+            score = rep_complete.optimalite()
+            if score < score_optimal:
+                print('Nouvel optimal: ', score)
+                score_optimal = score
+                groupes_optimaux = rep_complete.groups
+        return groupes_optimaux

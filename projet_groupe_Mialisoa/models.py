@@ -2,7 +2,6 @@ from typing import List, Sequence
 
 from grouping import BoundedPartition, BoundedGroup
 
-
 class Etudiant(object):
 
     def __init__(self, nom, prenom, avantage: float, leader=False, polarite: int = None):
@@ -59,7 +58,7 @@ class GroupeTP(object):
         assert sum(res) == nb_etu
         return res
 
-
+""" Représente une répartition de groupes de projet. """
 class Repartition(BoundedPartition):
 
     def validite(self):

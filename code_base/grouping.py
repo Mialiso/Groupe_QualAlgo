@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Sequence, Collection
 
 
@@ -36,7 +37,10 @@ class BoundedGroup(object):
     def add_member(self, m):
         if self.is_full():
             raise ValueError(f'Group {self.name} is full')
-        self.members.append(m)  
+        self.members.append(m)
+
+    def pop_last(self):
+        self.members.pop()
 
 
 class BoundedPartition(object):
@@ -57,3 +61,19 @@ class BoundedPartition(object):
     def __repr__(self):
         groups = (f'({len(g.members)}/{g.capacity})' for g in self.groups.values())
         return f'<BoundedPartition: {"".join(groups)}>'
+
+    def assign(self, member, group_name: int):
+        self.groups[group_name].add_member(member)
+
+    def possible_assignments(self, members: Sequence):
+        if len(members) + self.member_count > self.capacity:
+            raise ValueError
+        if not members:
+            yield deepcopy(self)
+        else:
+            current_member, *other_members = members
+            for g in self.groups.values():
+                if not g.is_full():
+                    g.add_member(current_member)
+                    yield from self.possible_assignments(other_members)
+                    g.pop_last()
